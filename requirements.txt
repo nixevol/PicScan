@@ -1,0 +1,7 @@
+easyocr
+fastapi
+uvicorn[standard]
+python-multipart
+openpyxl
+pillow
+
