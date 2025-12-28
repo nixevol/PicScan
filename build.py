@@ -33,11 +33,12 @@ def main():
         sys.executable,
         '-m', 'PyInstaller',
         '--name=固移工单数据处理工具',
-        '--onedir',  # 打包为目录（包含所有依赖）
+        '--onedir',  # 打包为目录（包含所有依赖），如果需要打包为单个文件，则使用 --onefile，但这样会导致exe文件很大，启动很慢
         '--console',  # 显示控制台（方便查看日志）
         '--noconfirm',  # 覆盖已有输出
         # 添加数据文件
         '--add-data=index.html;.',
+        '--add-data=.EasyOCR;.EasyOCR',  # 添加EasyOCR模型文件
         # 隐藏导入
         '--hidden-import=uvicorn.logging',
         '--hidden-import=uvicorn.loops',
