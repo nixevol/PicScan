@@ -5,7 +5,11 @@ from pathlib import Path
 import json
 import csv
 import warnings
+import shutil
+import hashlib
+import sqlite3
 from datetime import datetime
+from typing import Optional, Dict
 warnings.filterwarnings('ignore')
 
 try:
@@ -26,12 +30,150 @@ def get_model_dir():
     return str(base_path / '.EasyOCR')
 
 
+def get_cache_db_path():
+    """获取缓存数据库路径，支持打包后的exe环境"""
+    if getattr(sys, 'frozen', False):
+        base_path = Path(sys.executable).parent
+    else:
+        base_path = Path(__file__).parent
+    return base_path / 'image_cache.db'
+
+
+def calculate_image_hash(image_path: str) -> str:
+    """计算图片文件的MD5哈希值"""
+    hash_md5 = hashlib.md5()
+    try:
+        with open(image_path, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except Exception:
+        return ""
+
+
+class ImageCache:
+    """图片识别结果缓存管理器"""
+    
+    def __init__(self, db_path: Optional[Path] = None):
+        if db_path is None:
+            db_path = get_cache_db_path()
+        self.db_path = db_path
+        self._init_database()
+    
+    def _init_database(self):
+        """初始化数据库表"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS image_cache (
+                image_hash TEXT PRIMARY KEY,
+                upload_speed REAL,
+                download_speed REAL,
+                recognized_text TEXT,
+                created_at TEXT,
+                last_used_at TEXT
+            )
+        ''')
+        # 创建索引以提高查询速度
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_image_hash ON image_cache(image_hash)
+        ''')
+        conn.commit()
+        conn.close()
+    
+    def get(self, image_hash: str) -> Optional[Dict]:
+        """从缓存获取识别结果"""
+        if not image_hash:
+            return None
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT upload_speed, download_speed, recognized_text
+            FROM image_cache
+            WHERE image_hash = ?
+        ''', (image_hash,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            # 更新最后使用时间
+            self._update_last_used(image_hash)
+            return {
+                'upload_speed': row[0],
+                'download_speed': row[1],
+                'recognized_text': row[2]
+            }
+        return None
+    
+    def set(self, image_hash: str, upload_speed: Optional[float], 
+            download_speed: Optional[float], recognized_text: str = ""):
+        """保存识别结果到缓存"""
+        if not image_hash:
+            return
+        
+        now = datetime.now().isoformat()
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO image_cache 
+            (image_hash, upload_speed, download_speed, recognized_text, created_at, last_used_at)
+            VALUES (?, ?, ?, ?, 
+                COALESCE((SELECT created_at FROM image_cache WHERE image_hash = ?), ?),
+                ?)
+        ''', (image_hash, upload_speed, download_speed, recognized_text, 
+              image_hash, now, now))
+        conn.commit()
+        conn.close()
+    
+    def _update_last_used(self, image_hash: str):
+        """更新最后使用时间"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE image_cache 
+            SET last_used_at = ?
+            WHERE image_hash = ?
+        ''', (datetime.now().isoformat(), image_hash))
+        conn.commit()
+        conn.close()
+    
+    def get_stats(self) -> Dict:
+        """获取缓存统计信息"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM image_cache')
+        total = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) FROM image_cache WHERE upload_speed IS NOT NULL OR download_speed IS NOT NULL')
+        with_result = cursor.fetchone()[0]
+        conn.close()
+        return {
+            'total_cached': total,
+            'with_result': with_result
+        }
+
+
 class SpeedRecognizer:
-    def __init__(self, model_dir=None):
+    def __init__(self, model_dir=None, enable_cache=True):
         if model_dir is None:
             model_dir = get_model_dir()
         os.makedirs(model_dir, exist_ok=True)
+
+        # 在打包后的环境中优先将内置模型释放到可写目录
+        if getattr(sys, 'frozen', False):
+            bundled_base = Path(getattr(sys, '_MEIPASS', Path(model_dir).parent))
+            bundled_models = bundled_base / '.EasyOCR'
+            target_dir = Path(model_dir)
+            try:
+                if bundled_models.exists() and (not any(target_dir.iterdir())):
+                    shutil.copytree(bundled_models, target_dir, dirs_exist_ok=True)
+            except Exception:
+                # 静默失败，后续由 easyocr 自行下载
+                pass
+
         self.reader = easyocr.Reader(['ch_sim', 'en'], gpu=False, verbose=False, model_storage_directory=model_dir)
+        self.enable_cache = enable_cache
+        self.cache = ImageCache() if enable_cache else None
 
     def extract_speed(self, text):
         result = {'upload_speed': None, 'download_speed': None}
@@ -71,11 +213,36 @@ class SpeedRecognizer:
         if not os.path.exists(image_path):
             return {'upload_speed': None, 'download_speed': None}
         
+        # 计算图片哈希
+        image_hash = calculate_image_hash(image_path)
+        
+        # 先查缓存
+        if self.enable_cache and self.cache and image_hash:
+            cached_result = self.cache.get(image_hash)
+            if cached_result:
+                return {
+                    'upload_speed': cached_result['upload_speed'],
+                    'download_speed': cached_result['download_speed']
+                }
+        
+        # 缓存未命中，进行识别
         try:
             results = self.reader.readtext(image_path)
             text = ' '.join([item[1] for item in results])
-            return self.extract_speed(text)
-        except:
+            speed_result = self.extract_speed(text)
+            
+            # 保存到缓存（仅保存成功识别的结果，即使速度值为None也保存，因为OCR识别成功了）
+            if self.enable_cache and self.cache and image_hash:
+                self.cache.set(
+                    image_hash,
+                    speed_result.get('upload_speed'),
+                    speed_result.get('download_speed'),
+                    recognized_text=text
+                )
+            
+            return speed_result
+        except Exception as e:
+            # 识别失败不保存到缓存，下次遇到会重新尝试识别
             return {'upload_speed': None, 'download_speed': None}
 
     def recognize_directory(self, directory='images'):

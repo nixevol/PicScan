@@ -49,7 +49,7 @@ class DataProcessor:
                                 f.write(img_data)
                             image_files_by_name[img_name] = img_path
                 
-                print(f"提取了 {len(image_files_by_name)} 个图片文件")
+                # 提取图片完成，不输出详细信息
                 
                 # 2. 解析 cellimages.xml.rels 获取 rId -> 图片文件名 的映射
                 rels_xml = None
@@ -77,9 +77,9 @@ class DataProcessor:
                                 if rid and 'media/' in target:
                                     img_name = Path(target).name
                                     rid_to_image[rid] = img_name
-                        print(f"解析rels文件，找到 {len(rid_to_image)} 个rId映射")
+                        # 解析rels文件完成
                     except Exception as e:
-                        print(f"解析cellimages.xml.rels失败: {e}")
+                        pass  # 静默失败
                 
                 # 3. 解析 cellimages.xml 获取 name(DISPIMG ID) -> rId 和 descr -> rId 的映射
                 cellimages_xml = None
@@ -102,7 +102,6 @@ class DataProcessor:
                         }
                         
                         cell_images = root.findall('.//etc:cellImage', ns)
-                        print(f"XML中找到 {len(cell_images)} 个cellImage节点")
                         
                         for cell_image in cell_images:
                             pic = cell_image.find('.//xdr:pic', ns)
@@ -135,16 +134,14 @@ class DataProcessor:
                                 if name:
                                     self.dispimg_to_image[name] = img_path
                         
-                        print(f"成功建立 {len(images)} 个descr映射，{len(self.dispimg_to_image)} 个DISPIMG ID映射")
+                        # 图片映射建立完成
                     except Exception as e:
-                        print(f"解析cellimages.xml失败: {e}")
-                        import traceback
-                        traceback.print_exc()
+                        pass  # 静默失败
                 else:
-                    print("未找到cellimages.xml文件")
+                    pass  # 未找到cellimages.xml，静默
             
         except Exception as e:
-            print(f"提取图片失败: {e}")
+            pass  # 静默失败
         
         return images
     
@@ -204,7 +201,7 @@ class DataProcessor:
         # 找不到匹配的图片，返回None
         return None
     
-    def process_excel(self, excel_path: Path, progress_callback=None) -> List[Dict]:
+    def process_excel(self, excel_path: Path, progress_callback=None, start_from_index: int = 0, existing_results: List[Dict] = None) -> List[Dict]:
         """处理Excel文件，提取数据
         
         Args:
@@ -213,8 +210,13 @@ class DataProcessor:
                               current: 当前处理的行号
                               total: 总行数
                               result: 当前行的处理结果
+            start_from_index: 从第几行开始处理（用于继续处理）
+            existing_results: 已有的结果列表（用于继续处理时保留之前的结果）
         """
-        results = []
+        if existing_results is None:
+            results = []
+        else:
+            results = existing_results.copy()
         
         wb = openpyxl.load_workbook(excel_path, data_only=True)
         ws = wb.active
@@ -263,8 +265,12 @@ class DataProcessor:
         valid_rows = [row for row in all_rows if row[col_indices['工单号'] - 1].value]
         total_rows = len(valid_rows)
         
+        # 从指定索引开始处理
+        rows_to_process = valid_rows[start_from_index:]
+        
         # 处理每一行数据
-        for idx, row in enumerate(valid_rows):
+        for idx, row in enumerate(rows_to_process):
+            actual_index = start_from_index + idx
             order_id = str(row[col_indices['工单号'] - 1].value)
             result = {'工单号': order_id}
             
@@ -287,8 +293,6 @@ class DataProcessor:
                     if match:
                         dispimg_id = match.group(1)
                         speed_5g_img = self.get_image_by_dispimg_id(dispimg_id)
-                        if speed_5g_img:
-                            print(f"  通过DISPIMG ID找到图片: {dispimg_id} -> {speed_5g_img.name}")
                 
                 # 如果DISPIMG方式没找到，尝试通过descr匹配
                 if not speed_5g_img:
@@ -375,7 +379,6 @@ class DataProcessor:
                 if lon_5g and lat_5g:
                     result['经度'] = lon_5g
                     result['纬度'] = lat_5g
-                    print(f"  使用5G经纬度: {lon_5g}, {lat_5g}")
             
             # 如果5G没有经纬度，使用4G的
             if not result['经度'] or not result['纬度']:
@@ -385,15 +388,30 @@ class DataProcessor:
                     if lon_4g and lat_4g:
                         result['经度'] = lon_4g
                         result['纬度'] = lat_4g
-                        print(f"  使用4G经纬度: {lon_4g}, {lat_4g}")
             
             results.append(result)
             
+            # 汇总缺失字段信息
+            missing_fields = []
+            if not result.get('上传速率Mbps') and not result.get('下载速率Mbps'):
+                missing_fields.append('速率')
+            if not result.get('ECI') and not result.get('RSRP') and not result.get('SINR'):
+                missing_fields.append('4G数据')
+            if not result.get('NR-CI') and not result.get('SS-RSRP') and not result.get('SS-SINR'):
+                missing_fields.append('5G数据')
+            if not result.get('经度') or not result.get('纬度'):
+                missing_fields.append('经纬度')
+            
+            if missing_fields:
+                print(f"[工单{order_id}] 缺失: {', '.join(missing_fields)}")
+            else:
+                print(f"[工单{order_id}] ✓ 数据完整")
+            
             # 调用进度回调，如果返回 False 则停止处理
             if progress_callback:
-                should_continue = progress_callback(idx + 1, total_rows, result)
+                should_continue = progress_callback(actual_index + 1, total_rows, result)
                 if should_continue is False:
-                    print(f"处理被取消，已处理 {idx + 1}/{total_rows} 行")
+                    print(f"[取消] 已处理 {actual_index + 1}/{total_rows} 行")
                     break
         
         return results
@@ -410,8 +428,6 @@ class DataProcessor:
             'SINR': None
         }
         
-        print(f"处理4G Log: {log_filename}")
-        
         if not self.log_4g_dir:
             return result
         
@@ -419,15 +435,11 @@ class DataProcessor:
         log_file = self.log_4g_dir / log_filename
         
         if not log_file.exists():
-            print(f"  文件不存在: {log_file}")
             return result
         
         # 只支持csv和xlsx格式
         if log_file.suffix.lower() not in ['.csv', '.xlsx']:
-            print(f"  不支持的文件格式: {log_file.suffix}")
             return result
-        
-        print(f"  找到文件: {log_file}")
         
         try:
             # 判断文件格式
@@ -523,9 +535,6 @@ class DataProcessor:
                     reader = csv.DictReader(f)
                     # 获取实际的字段名（去除引号和空格）
                     fieldnames = [field.strip().strip('"').strip("'") for field in reader.fieldnames] if reader.fieldnames else []
-                    
-                    # 调试：打印字段名
-                    print(f"4G Log字段名: {fieldnames}")
                     
                     # 查找字段索引
                     rsrp_col_idx = None
@@ -647,9 +656,16 @@ class DataProcessor:
                         result['RSRP'] = get_field_value(median_row, fieldnames, 'RSRP')
                         result['SINR'] = get_field_value(median_row, fieldnames, 'SINR')
                         
-                        print(f"4G Log提取结果: 经度={result['经度']}, 纬度={result['纬度']}, RSRP={result['RSRP']}")
+                        # 汇总缺失字段
+                        missing = []
+                        if not result.get('ECI'): missing.append('ECI')
+                        if not result.get('RSRP'): missing.append('RSRP')
+                        if not result.get('SINR'): missing.append('SINR')
+                        if not result.get('经度') or not result.get('纬度'): missing.append('经纬度')
+                        if missing:
+                            print(f"  [4G Log] 缺失: {', '.join(missing)}")
         except Exception as e:
-            print(f"解析4G log失败 {log_file}: {e}")
+            print(f"  [4G Log] 解析失败: {e}")
         
         return result
     
@@ -665,8 +681,6 @@ class DataProcessor:
             'SS-SINR': None
         }
         
-        print(f"处理5G Log: {log_filename}")
-        
         if not self.log_5g_dir:
             return result
         
@@ -674,15 +688,11 @@ class DataProcessor:
         log_file = self.log_5g_dir / log_filename
         
         if not log_file.exists():
-            print(f"  文件不存在: {log_file}")
             return result
         
         # 只支持csv和xlsx格式
         if log_file.suffix.lower() not in ['.csv', '.xlsx']:
-            print(f"  不支持的文件格式: {log_file.suffix}")
             return result
-        
-        print(f"  找到文件: {log_file}")
         
         try:
             # 判断文件格式
@@ -781,9 +791,6 @@ class DataProcessor:
                     reader = csv.DictReader(f)
                     # 获取实际的字段名（去除引号和空格）
                     fieldnames = [field.strip().strip('"').strip("'") for field in reader.fieldnames] if reader.fieldnames else []
-                    
-                    # 调试：打印字段名
-                    print(f"5G Log字段名: {fieldnames}")
                     
                     # 查找字段索引
                     rsrp_col_idx = None
@@ -905,9 +912,16 @@ class DataProcessor:
                         result['SS-RSRP'] = get_field_value(median_row, fieldnames, 'SS-RSRP')
                         result['SS-SINR'] = get_field_value(median_row, fieldnames, 'SS-SINR')
                         
-                        print(f"5G Log提取结果: 经度={result['5G_经度']}, 纬度={result['5G_纬度']}, SS-RSRP={result['SS-RSRP']}")
+                        # 汇总缺失字段
+                        missing = []
+                        if not result.get('NR-CI'): missing.append('NR-CI')
+                        if not result.get('SS-RSRP'): missing.append('SS-RSRP')
+                        if not result.get('SS-SINR'): missing.append('SS-SINR')
+                        if not result.get('5G_经度') or not result.get('5G_纬度'): missing.append('经纬度')
+                        if missing:
+                            print(f"  [5G Log] 缺失: {', '.join(missing)}")
         except Exception as e:
-            print(f"解析5G log失败 {log_file}: {e}")
+            print(f"  [5G Log] 解析失败: {e}")
         
         return result
     

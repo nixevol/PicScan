@@ -12,27 +12,123 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background: #f5f7fa;
-            min-height: 100vh;
-            padding: 16px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            height: 100vh;
+            padding: 20px;
+            padding-bottom: 50px; /* 为版权栏留空间 */
             color: #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
         }
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 0;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #e4e7ed;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
         .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        /* 侧边栏遮罩 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 36px; /* 为版权栏留空间 */
+            width: 730px;
+            max-width: 90vw;
+            background: #fff;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar.show {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .sidebar-header h2 {
             font-size: 18px;
             font-weight: 600;
-            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+        .sidebar-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .sidebar-body {
+            flex: 1;
+            overflow: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
         .toolbar {
             display: flex;
@@ -40,11 +136,11 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            padding: 16px;
+            padding: 20px;
             background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            margin-bottom: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
         }
         .toolbar-item {
             display: flex;
@@ -55,18 +151,20 @@
             font-size: 13px;
             color: #606266;
             white-space: nowrap;
+            font-weight: 500;
         }
         .toolbar-item input[type="text"] {
-            padding: 6px 10px;
+            padding: 8px 12px;
             border: 1px solid #dcdfe6;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 13px;
             width: 280px;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
         .toolbar-item input[type="text"]:focus {
             outline: none;
-            border-color: #409eff;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         .upload-area {
             display: flex;
@@ -75,19 +173,20 @@
             gap: 10px;
             padding: 16px 32px;
             border: 2px dashed #c0c4cc;
-            border-radius: 6px;
-            background: #fafafa;
+            border-radius: 8px;
+            background: #fafbfc;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             min-width: 240px;
         }
         .upload-area:hover {
-            border-color: #409eff;
-            background: #f0f7ff;
+            border-color: #667eea;
+            background: #f0f3ff;
+            transform: translateY(-1px);
         }
         .upload-area.dragover {
-            border-color: #409eff;
-            background: #ecf5ff;
+            border-color: #667eea;
+            background: #e8ecff;
             border-style: solid;
         }
         .upload-area.has-file {
@@ -96,7 +195,7 @@
             background: #f0f9eb;
         }
         .upload-area .icon {
-            font-size: 20px;
+            font-size: 22px;
         }
         .upload-area .text {
             font-size: 14px;
@@ -106,49 +205,87 @@
         .upload-area.has-file .text {
             color: #67c23a;
         }
+        .upload-area.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            border-color: #c0c4cc;
+            background: #f5f7fa;
+        }
+        .upload-area.disabled:hover {
+            transform: none;
+            border-color: #c0c4cc;
+            background: #f5f7fa;
+        }
+        .toolbar-item.disabled label,
+        .toolbar-item.disabled input {
+            opacity: 0.5;
+            pointer-events: none;
+        }
         input[type="file"] {
             display: none;
         }
         .btn {
-            padding: 7px 16px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
+        }
+        .btn:active {
+            transform: scale(0.98);
         }
         .btn-primary {
-            background: #409eff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
         .btn-primary:hover {
-            background: #66b1ff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transform: translateY(-1px);
         }
         .btn-success {
-            background: #67c23a;
+            background: linear-gradient(135deg, #67c23a 0%, #5daf34 100%);
             color: #fff;
+            box-shadow: 0 2px 8px rgba(103, 194, 58, 0.3);
         }
         .btn-success:hover {
-            background: #85ce61;
+            box-shadow: 0 4px 12px rgba(103, 194, 58, 0.4);
+            transform: translateY(-1px);
         }
         .btn-danger {
-            background: #f56c6c;
+            background: linear-gradient(135deg, #f56c6c 0%, #e74c3c 100%);
             color: #fff;
+            box-shadow: 0 2px 8px rgba(245, 108, 108, 0.3);
         }
         .btn-danger:hover {
-            background: #f78989;
+            box-shadow: 0 4px 12px rgba(245, 108, 108, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-default {
+            background: #fff;
+            color: #606266;
+            border: 1px solid #dcdfe6;
+        }
+        .btn-default:hover {
+            background: #f5f7fa;
+            border-color: #c0c4cc;
         }
         .btn-sm {
-            padding: 5px 12px;
+            padding: 6px 12px;
             font-size: 12px;
         }
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
         .file-actions {
             display: none;
@@ -160,21 +297,41 @@
         }
         .card {
             background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            margin-bottom: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .card.flex-grow {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+        .card.flex-grow .table-container {
+            flex: 1;
+            max-height: none;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: auto;
         }
         .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 14px 20px;
             border-bottom: 1px solid #ebeef5;
+            background: #fafbfc;
         }
         .card-header h2 {
             font-size: 14px;
             font-weight: 600;
             color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .card-header-actions {
             display: flex;
@@ -182,25 +339,25 @@
             gap: 8px;
         }
         .card-body {
-            padding: 16px;
+            padding: 20px;
         }
         .progress-section {
             display: none;
         }
         .progress-bar {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: #ebeef5;
-            border-radius: 3px;
+            border-radius: 4px;
             overflow: hidden;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         .progress-fill {
             height: 100%;
-            background: #409eff;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             width: 0%;
-            transition: width 0.3s;
-            border-radius: 3px;
+            transition: width 0.3s ease-out;
+            border-radius: 4px;
         }
         .status-row {
             display: flex;
@@ -208,16 +365,16 @@
             justify-content: space-between;
         }
         .status-text {
-            font-size: 12px;
-            color: #909399;
+            font-size: 13px;
+            color: #606266;
         }
         .status-text.error {
             color: #f56c6c;
         }
         .progress-percent {
-            font-size: 12px;
-            color: #409eff;
-            font-weight: 500;
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
         }
         .result-count {
             font-size: 12px;
@@ -225,9 +382,58 @@
             font-weight: normal;
             margin-left: 8px;
         }
+        .sidebar-header .result-count {
+            font-size: 15px;
+            color: #cccaca;
+            font-weight: 600;
+
+        }
         .table-container {
-            max-height: calc(100vh - 300px);
+            max-height: 40vh;
             overflow: auto;
+        }
+        .history-table-container {
+            flex: 1;
+            overflow: auto;
+            min-height: 0;
+        }
+        .sidebar-body .result-table {
+            font-size: 11px;
+        }
+        .sidebar-body .result-table th,
+        .sidebar-body .result-table td {
+            padding: 8px 10px;
+        }
+        .sidebar-body .result-table th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f5f7fa;
+        }
+        .history-row {
+            transition: background-color 0.2s;
+        }
+        .history-row:hover {
+            background: #f5f7fa;
+        }
+        .history-row.disabled {
+            opacity: 0.6;
+        }
+        .link-btn {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .link-btn:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        .link-btn.disabled {
+            color: #c0c4cc;
+            cursor: not-allowed;
+            text-decoration: none;
         }
         .result-table {
             width: 100%;
@@ -236,7 +442,7 @@
         }
         .result-table th,
         .result-table td {
-            padding: 8px 12px;
+            padding: 10px 14px;
             text-align: left;
             border-bottom: 1px solid #ebeef5;
             white-space: nowrap;
@@ -244,18 +450,15 @@
         .result-table th {
             background: #f5f7fa;
             color: #606266;
-            font-weight: 500;
+            font-weight: 600;
             position: sticky;
             top: 0;
             z-index: 10;
         }
-        .result-table tr:hover {
-            background: #f5f7fa;
-        }
         .result-table tr.new-row {
-            animation: fadeIn 0.3s ease-out;
+            animation: rowHighlight 0.5s ease-out;
         }
-        @keyframes fadeIn {
+        @keyframes rowHighlight {
             from { background-color: #e1f3d8; }
             to { background-color: transparent; }
         }
@@ -268,19 +471,280 @@
             color: #909399;
             font-size: 13px;
         }
+        /* 状态标签 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .status-badge.completed {
+            background: #e1f3d8;
+            color: #67c23a;
+        }
+        .status-badge.processing {
+            background: #e8ecff;
+            color: #667eea;
+        }
+        .status-badge.cancelled {
+            background: #fef0e6;
+            color: #e6a23c;
+        }
+        .status-badge.error {
+            background: #fde2e2;
+            color: #f56c6c;
+        }
+        /* 操作按钮组 */
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        /* 弹窗遮罩层 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-overlay.hiding {
+            opacity: 0;
+        }
+        /* 弹窗容器 */
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            min-width: 380px;
+            max-width: 460px;
+            transform: scale(0.9) translateY(-20px);
+            transition: transform 0.2s ease-out;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+        .modal-overlay.hiding .modal {
+            transform: scale(0.9) translateY(-20px);
+        }
+        /* 弹窗头部 */
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin: 0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #909399;
+            cursor: pointer;
+            padding: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: #f5f7fa;
+            color: #303133;
+        }
+        /* 弹窗内容 */
+        .modal-body {
+            padding: 28px 24px;
+            color: #606266;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .modal-body .icon {
+            font-size: 52px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .modal-body .message {
+            text-align: center;
+            font-size: 15px;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+        .modal-body .detail {
+            text-align: center;
+            color: #909399;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        /* 弹窗底部 */
+        .modal-footer {
+            padding: 14px 24px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .modal-footer .btn {
+            min-width: 80px;
+            justify-content: center;
+        }
+        /* 消息弹窗样式 */
+        .modal-message .modal-body {
+            text-align: center;
+        }
+        .modal-message.success .modal-header {
+            border-bottom-color: #e1f3d8;
+        }
+        .modal-message.success .modal-body .icon {
+            color: #67c23a;
+        }
+        .modal-message.error .modal-header {
+            border-bottom-color: #fde2e2;
+        }
+        .modal-message.error .modal-body .icon {
+            color: #f56c6c;
+        }
+        .modal-message.warning .modal-header {
+            border-bottom-color: #faecd8;
+        }
+        .modal-message.warning .modal-body .icon {
+            color: #e6a23c;
+        }
+        .modal-message.info .modal-header {
+            border-bottom-color: #e1f3ff;
+        }
+        .modal-message.info .modal-body .icon {
+            color: #667eea;
+        }
+        /* Toast 轻提示 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(48, 49, 51, 0.9);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease-out;
+            pointer-events: auto;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success {
+            background: rgba(103, 194, 58, 0.95);
+        }
+        .toast.error {
+            background: rgba(245, 108, 108, 0.95);
+        }
+        .toast.warning {
+            background: rgba(230, 162, 60, 0.95);
+        }
+        /* 加载指示器 */
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 版权声明 */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            padding: 10px 20px;
+            font-size: 12px;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .footer a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        /* 为底部版权留出空间 */
+        .container {
+            padding-bottom: 50px;
+        }
     </style>
 </head>
 <body>
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 弹窗遮罩层 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal modal-message" id="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">提示</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="icon" id="modalIcon">ℹ️</div>
+                <div class="message" id="modalMessage"></div>
+                <div class="detail" id="modalDetail"></div>
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn btn-primary" id="modalConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>📊 固移工单数据处理工具</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary btn-sm" id="historyToggleBtn">📋 历史记录</button>
+            </div>
         </div>
         
         <div class="toolbar">
-            <div class="toolbar-item">
-                <label>Excel文件:</label>
-                <input type="text" id="xlsxFileName" placeholder="留空自动查找，或输入文件名">
-            </div>
             <div class="toolbar-item">
                 <div class="upload-area" id="uploadArea">
                     <span class="icon">📁</span>
@@ -288,9 +752,13 @@
                 </div>
                 <input type="file" id="fileInput" accept=".zip">
             </div>
+            <div class="toolbar-item" id="xlsxFileItem" style="display:none;">
+                <label>Excel文件:</label>
+                <input type="text" id="xlsxFileName" placeholder="留空自动查找，或指定文件名">
+            </div>
             <div class="file-actions" id="fileActions">
                 <button class="btn btn-success btn-sm" id="startBtn">▶ 开始处理</button>
-                <button class="btn btn-danger btn-sm" id="cancelBtn">✕ 取消</button>
+                <button class="btn btn-default btn-sm" id="cancelBtn">✕ 取消</button>
             </div>
         </div>
         
@@ -302,16 +770,18 @@
                 <div class="status-row">
                     <span class="status-text" id="statusMessage">等待上传...</span>
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <button class="btn btn-danger btn-sm" id="cancelTaskBtn" style="display:none;">⏹ 取消任务</button>
+                        <button class="btn btn-primary btn-sm" id="historyResumeBtn" style="display:none;">▶ 继续处理</button>
+                        <button class="btn btn-danger btn-sm" id="cancelTaskBtn" style="display:none;">⏹ 停止任务</button>
                         <span class="progress-percent" id="progressPercent">0%</span>
                     </div>
                 </div>
             </div>
         </div>
+
         
-        <div class="card" id="resultContainer" style="display:none;">
+        <div class="card flex-grow" id="resultContainer" style="display:none;">
             <div class="card-header">
-                <h2>处理结果 <span class="result-count" id="resultCount">(0/0)</span></h2>
+                <h2>📄 处理结果 <span class="result-count" id="resultCount">(0/0)</span></h2>
                 <div class="card-header-actions">
                     <a href="#" class="btn btn-primary btn-sm" id="downloadPartialBtn" style="display:none;">⬇ 下载已解析</a>
                     <a href="#" class="btn btn-success btn-sm" id="downloadBtn" style="display:none;">⬇ 下载完整CSV</a>
@@ -341,11 +811,50 @@
         </div>
     </div>
 
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- 历史记录侧边栏 -->
+    <div class="sidebar" id="historySidebar">
+        <div class="sidebar-header">
+            <h2>📋 历史记录 <span class="result-count" id="historyCount"></span></h2>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn btn-primary btn-sm" id="refreshHistoryBtn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">⟳ 刷新</button>
+                <button class="sidebar-close" id="sidebarClose">×</button>
+            </div>
+        </div>
+        <div class="sidebar-body">
+            <div class="table-container history-table-container">
+                <table class="result-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>任务ID</th>
+                            <th>状态</th>
+                            <th>进度</th>
+                            <th>创建时间</th>
+                            <th>完成时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr><td colspan="6" class="empty-cell">暂无历史记录</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 版权声明 -->
+    <footer class="footer">
+        © 2025 <a href="#">NIXEVOL</a> · 固移工单数据处理工具
+    </footer>
+
     <script>
         let currentTaskId = null;
         let pollInterval = null;
         let lastResultIndex = 0;
         let selectedFile = null;
+        let isProcessing = false;
 
         const uploadArea = document.getElementById('uploadArea');
         const uploadText = document.getElementById('uploadText');
@@ -363,10 +872,128 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const downloadPartialBtn = document.getElementById('downloadPartialBtn');
         const cancelTaskBtn = document.getElementById('cancelTaskBtn');
+        const historyResumeBtn = document.getElementById('historyResumeBtn');
+        const historyBody = document.getElementById('historyBody');
+        const historyCount = document.getElementById('historyCount');
+        const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
+        const toastContainer = document.getElementById('toastContainer');
+        const historyToggleBtn = document.getElementById('historyToggleBtn');
+        const historySidebar = document.getElementById('historySidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarClose = document.getElementById('sidebarClose');
         
         const fieldOrder = ['工单号', '经度', '纬度', '上传速率Mbps', '下载速率Mbps', 'ECI', 'RSRP', 'SINR', 'NR-CI', 'SS-RSRP', 'SS-SINR'];
         
         const STORAGE_KEY = 'picscan_task_state';
+        const STATUS_LABELS = { completed: '已完成', processing: '处理中', cancelled: '已取消', error: '失败' };
+        const CLICK_DISABLED_STATUS = ['processing'];
+        
+        // 弹窗元素
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalDetail = document.getElementById('modalDetail');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalFooter = document.getElementById('modalFooter');
+        const modalClose = document.getElementById('modalClose');
+        
+        // Toast 轻提示
+        function showToast(message, type = 'info', duration = 2500) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            
+            // 触发动画
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+            
+            // 自动消失
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        // 显示消息弹窗
+        function showMessage(type, message, detail = '', title = '') {
+            return new Promise((resolve) => {
+                modal.classList.remove('success', 'error', 'warning', 'info');
+                modal.classList.add(type);
+                
+                const titles = { success: '成功', error: '错误', warning: '警告', info: '提示' };
+                modalTitle.textContent = title || titles[type] || '提示';
+                
+                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+                modalIcon.textContent = icons[type] || 'ℹ️';
+                
+                modalMessage.textContent = message;
+                modalDetail.textContent = detail;
+                modalDetail.style.display = detail ? 'block' : 'none';
+                
+                modalFooter.innerHTML = '<button class="btn btn-primary" id="modalConfirm">确定</button>';
+                const confirmBtn = document.getElementById('modalConfirm');
+                
+                const closeModal = () => {
+                    modalOverlay.classList.add('hiding');
+                    setTimeout(() => {
+                        modalOverlay.classList.remove('show', 'hiding');
+                        resolve(true);
+                    }, 200);
+                };
+                
+                confirmBtn.onclick = closeModal;
+                modalClose.onclick = closeModal;
+                
+                modalOverlay.onclick = (e) => {
+                    if (e.target === modalOverlay) closeModal();
+                };
+                
+                modalOverlay.classList.add('show');
+            });
+        }
+        
+        // 显示确认弹窗
+        function showConfirm(message, detail = '', title = '确认') {
+            return new Promise((resolve) => {
+                modal.classList.remove('success', 'error', 'warning', 'info');
+                modal.classList.add('warning');
+                
+                modalTitle.textContent = title;
+                modalIcon.textContent = '❓';
+                
+                modalMessage.textContent = message;
+                modalDetail.textContent = detail;
+                modalDetail.style.display = detail ? 'block' : 'none';
+                
+                modalFooter.innerHTML = `
+                    <button class="btn btn-default" id="modalCancel">取消</button>
+                    <button class="btn btn-danger" id="modalConfirm">确定</button>
+                `;
+                const confirmBtn = document.getElementById('modalConfirm');
+                const cancelBtnModal = document.getElementById('modalCancel');
+                
+                const closeModal = (result) => {
+                    modalOverlay.classList.add('hiding');
+                    setTimeout(() => {
+                        modalOverlay.classList.remove('show', 'hiding');
+                        resolve(result);
+                    }, 200);
+                };
+                
+                confirmBtn.onclick = () => closeModal(true);
+                cancelBtnModal.onclick = () => closeModal(false);
+                modalClose.onclick = () => closeModal(false);
+                
+                modalOverlay.onclick = (e) => {
+                    if (e.target === modalOverlay) closeModal(false);
+                };
+                
+                modalOverlay.classList.add('show');
+            });
+        }
         
         // 保存任务状态到 localStorage
         function saveTaskState() {
@@ -382,7 +1009,7 @@
                     const row = {};
                     fieldOrder.forEach((field, i) => {
                         const cell = cells[i];
-                        row[field] = cell.classList.contains('empty-cell') ? null : cell.textContent;
+                        row[field] = cell && cell.classList.contains('empty-cell') ? null : (cell ? cell.textContent : null);
                     });
                     return row;
                 })
@@ -412,27 +1039,21 @@
             const state = restoreTaskState();
             if (!state || !state.taskId) return;
             
-            // 检查任务是否仍然存在
             try {
                 const response = await fetch(`/api/task/${state.taskId}?last_index=0`);
                 if (response.status === 404) {
-                    // 任务不存在（可能后端重启了），清除状态
                     clearTaskState();
-                    console.log('任务已不存在，已清除本地状态');
                     return;
                 }
                 
                 const data = await response.json();
                 
-                // 恢复状态
                 currentTaskId = state.taskId;
                 lastResultIndex = state.lastResultIndex || 0;
                 
-                // 显示UI
                 progressContainer.style.display = 'block';
-                resultContainer.style.display = 'block';
+                resultContainer.style.display = 'flex';
                 
-                // 恢复已有的结果
                 if (state.results && state.results.length > 0) {
                     state.results.forEach(result => {
                         const tr = document.createElement('tr');
@@ -451,20 +1072,18 @@
                     });
                 }
                 
-                // 根据状态决定下一步
                 if (data.status === 'processing') {
                     statusMessage.textContent = data.message || '处理中...';
                     progressFill.style.width = `${data.progress}%`;
                     progressPercent.textContent = `${data.progress}%`;
                     cancelTaskBtn.style.display = 'inline-flex';
                     cancelTaskBtn.disabled = false;
-                    cancelTaskBtn.textContent = '⏹ 取消任务';
+                    cancelTaskBtn.textContent = '⏹ 停止任务';
                     
                     if (data.total_rows > 0) {
                         resultCount.textContent = `(${data.total_results}/${data.total_rows})`;
                     }
                     
-                    // 继续轮询
                     startPolling();
                 } else if (data.status === 'completed') {
                     handleTaskCompleted(data);
@@ -474,20 +1093,53 @@
                     handleTaskError(data);
                 }
             } catch (error) {
-                console.error('检查任务状态失败:', error);
                 clearTaskState();
             }
         }
         
         // 页面加载时执行
         checkPendingTask();
+        loadHistory();
+
+        // 禁用/启用上传区域
+        function setUploadEnabled(enabled) {
+            const xlsxFileItem = document.getElementById('xlsxFileItem');
+            
+            if (enabled) {
+                uploadArea.classList.remove('disabled');
+                isProcessing = false;
+                // 恢复上传文本
+                if (!selectedFile) {
+                    uploadText.textContent = '拖拽或点击上传ZIP';
+                }
+            } else {
+                uploadArea.classList.add('disabled');
+                isProcessing = true;
+                // 清除已选文件
+                selectedFile = null;
+                fileInput.value = '';
+                uploadArea.classList.remove('has-file');
+                uploadText.textContent = '任务处理中...';
+                fileActions.classList.remove('show');
+                // 隐藏并清空Excel文件输入框
+                xlsxFileItem.style.display = 'none';
+                document.getElementById('xlsxFileName').value = '';
+            }
+        }
 
         // 点击上传区域
-        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('click', () => {
+            if (isProcessing) {
+                showToast('请等待当前任务完成后再上传新文件', 'warning');
+                return;
+            }
+            fileInput.click();
+        });
 
         // 拖拽上传
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
+            if (isProcessing) return;
             uploadArea.classList.add('dragover');
         });
 
@@ -498,6 +1150,10 @@
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
+            if (isProcessing) {
+                showToast('请等待当前任务完成后再上传新文件', 'warning');
+                return;
+            }
             const files = e.dataTransfer.files;
             if (files.length > 0 && files[0].name.endsWith('.zip')) {
                 selectFile(files[0]);
@@ -505,6 +1161,7 @@
         });
 
         fileInput.addEventListener('change', (e) => {
+            if (isProcessing) return;
             if (e.target.files.length > 0) {
                 selectFile(e.target.files[0]);
             }
@@ -512,10 +1169,12 @@
 
         // 选择文件（不立即开始）
         function selectFile(file) {
+            if (isProcessing) return;
             selectedFile = file;
             uploadArea.classList.add('has-file');
             uploadText.textContent = file.name;
             fileActions.classList.add('show');
+            document.getElementById('xlsxFileItem').style.display = 'flex';
         }
 
         // 取消选择
@@ -525,6 +1184,8 @@
             uploadArea.classList.remove('has-file');
             uploadText.textContent = '拖拽或点击上传ZIP';
             fileActions.classList.remove('show');
+            document.getElementById('xlsxFileItem').style.display = 'none';
+            document.getElementById('xlsxFileName').value = '';
         });
 
         // 开始处理
@@ -539,7 +1200,7 @@
             if (!currentTaskId) return;
             
             cancelTaskBtn.disabled = true;
-            cancelTaskBtn.textContent = '取消中...';
+            cancelTaskBtn.innerHTML = '<span class="loading-spinner"></span> 停止中';
             
             try {
                 const response = await fetch(`/api/cancel/${currentTaskId}`, {
@@ -550,12 +1211,10 @@
                     const errData = await response.json();
                     throw new Error(errData.detail || '取消失败');
                 }
-                
-                // 取消请求已发送，等待轮询更新状态
             } catch (error) {
-                console.error('取消任务失败:', error);
-                statusMessage.textContent = `取消失败: ${error.message}`;
-                statusMessage.className = 'status-text error';
+                showToast(`停止失败: ${error.message}`, 'error');
+                cancelTaskBtn.disabled = false;
+                cancelTaskBtn.textContent = '⏹ 停止任务';
             }
         });
 
@@ -575,13 +1234,12 @@
                 downloadBtn.style.display = 'none';
                 downloadPartialBtn.style.display = 'none';
                 
-                // 隐藏文件操作按钮
                 fileActions.classList.remove('show');
                 
                 statusMessage.textContent = '正在上传...';
                 statusMessage.className = 'status-text';
                 progressContainer.style.display = 'block';
-                resultContainer.style.display = 'block';
+                resultContainer.style.display = 'flex';
                 progressFill.style.width = '5%';
                 progressPercent.textContent = '5%';
 
@@ -598,18 +1256,17 @@
                 const data = await response.json();
                 currentTaskId = data.task_id;
                 
-                // 保存任务状态
                 saveTaskState();
                 
                 statusMessage.textContent = '处理中...';
                 cancelTaskBtn.style.display = 'inline-flex';
                 cancelTaskBtn.disabled = false;
-                cancelTaskBtn.textContent = '⏹ 取消任务';
+                cancelTaskBtn.textContent = '⏹ 停止任务';
                 startPolling();
+                loadHistory();
             } catch (error) {
                 statusMessage.textContent = `错误: ${error.message}`;
                 statusMessage.className = 'status-text error';
-                // 错误时恢复文件操作按钮
                 if (selectedFile) {
                     fileActions.classList.add('show');
                 }
@@ -618,12 +1275,13 @@
 
         function startPolling() {
             if (pollInterval) clearInterval(pollInterval);
+            setUploadEnabled(false);
+            loadHistory(); // 刷新历史记录，禁用继续按钮
 
             pollInterval = setInterval(async () => {
                 try {
                     const response = await fetch(`/api/task/${currentTaskId}?last_index=${lastResultIndex}`);
                     
-                    // 检查404错误（任务不存在，可能后端重启了）
                     if (response.status === 404) {
                         clearInterval(pollInterval);
                         pollInterval = null;
@@ -631,8 +1289,8 @@
                         statusMessage.className = 'status-text error';
                         cancelTaskBtn.style.display = 'none';
                         clearTaskState();
-                        // 重置文件选择状态
                         resetFileSelection();
+                        setUploadEnabled(true);
                         return;
                     }
                     
@@ -649,11 +1307,9 @@
                     if (data.new_results && data.new_results.length > 0) {
                         appendResultRows(data.new_results);
                         lastResultIndex = data.total_results;
-                        // 保存任务状态（有新数据时）
                         saveTaskState();
                     }
                     
-                    // 处理中时，如果有已解析的数据就显示部分下载按钮
                     if (data.status === 'processing' && data.total_results > 0) {
                         downloadPartialBtn.href = `/api/download_partial/${currentTaskId}`;
                         downloadPartialBtn.textContent = `⬇ 下载已解析(${data.total_results}条)`;
@@ -668,12 +1324,11 @@
                         handleTaskError(data);
                     }
                 } catch (error) {
-                    console.error('轮询错误:', error);
+                    // 静默处理轮询错误
                 }
             }, 500);
         }
         
-        // 任务完成处理
         function handleTaskCompleted(data) {
             clearInterval(pollInterval);
             pollInterval = null;
@@ -683,48 +1338,94 @@
             downloadBtn.style.display = 'inline-flex';
             downloadPartialBtn.style.display = 'none';
             cancelTaskBtn.style.display = 'none';
+            historyResumeBtn.style.display = 'none';
             clearTaskState();
             resetFileSelection();
+            setUploadEnabled(true);
+            loadHistory();
+            showToast('处理完成！', 'success');
         }
         
-        // 任务取消处理
         function handleTaskCancelled(data) {
             clearInterval(pollInterval);
             pollInterval = null;
-            statusMessage.textContent = data.message || `已取消，已解析 ${data.total_results} 条`;
-            statusMessage.className = 'status-text';
             cancelTaskBtn.style.display = 'none';
+            
+            // 设置正确的进度条和状态消息
+            if (data.total_rows > 0) {
+                const progress = Math.round((data.total_results / data.total_rows) * 100);
+                progressFill.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                statusMessage.textContent = data.message || `已停止，已解析 ${data.total_results}/${data.total_rows} 条`;
+            } else {
+                statusMessage.textContent = data.message || `已停止，已解析 ${data.total_results} 条`;
+            }
+            statusMessage.className = 'status-text';
+            
+            // 如果有未处理的行，显示继续按钮
+            if (data.total_rows > 0 && data.total_results < data.total_rows) {
+                const taskIdToResume = currentTaskId;
+                historyResumeBtn.style.display = 'inline-flex';
+                historyResumeBtn.disabled = false;
+                historyResumeBtn.textContent = '▶ 继续处理';
+                historyResumeBtn.onclick = () => resumeTaskFromHistory(taskIdToResume);
+            } else {
+                historyResumeBtn.style.display = 'none';
+            }
+            
             if (data.total_results > 0) {
                 downloadBtn.href = `/api/download/${currentTaskId}`;
                 downloadBtn.textContent = `⬇ 下载CSV(${data.total_results}条)`;
                 downloadBtn.style.display = 'inline-flex';
             }
             downloadPartialBtn.style.display = 'none';
-            clearTaskState();
-            resetFileSelection();
+            setUploadEnabled(true);
+            loadHistory();
         }
         
-        // 任务错误处理
         function handleTaskError(data) {
             clearInterval(pollInterval);
             pollInterval = null;
-            statusMessage.textContent = `失败: ${data.error}`;
-            statusMessage.className = 'status-text error';
             cancelTaskBtn.style.display = 'none';
+            
+            // 设置正确的进度条和状态消息
+            if (data.total_rows > 0) {
+                const progress = Math.round((data.total_results / data.total_rows) * 100);
+                progressFill.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                statusMessage.textContent = `失败: ${data.error} (${data.total_results}/${data.total_rows})`;
+            } else {
+                statusMessage.textContent = `失败: ${data.error}`;
+            }
+            statusMessage.className = 'status-text error';
+            
+            // 如果有未处理的行，显示继续按钮
+            if (data.total_rows > 0 && data.total_results < data.total_rows) {
+                const taskIdToResume = currentTaskId;
+                historyResumeBtn.style.display = 'inline-flex';
+                historyResumeBtn.disabled = false;
+                historyResumeBtn.textContent = '▶ 继续处理';
+                historyResumeBtn.onclick = () => resumeTaskFromHistory(taskIdToResume);
+            } else {
+                historyResumeBtn.style.display = 'none';
+            }
+            
             if (data.total_results > 0) {
                 downloadPartialBtn.href = `/api/download_partial/${currentTaskId}`;
                 downloadPartialBtn.textContent = `⬇ 下载已解析(${data.total_results}条)`;
                 downloadPartialBtn.style.display = 'inline-flex';
             }
-            clearTaskState();
+            setUploadEnabled(true);
+            loadHistory();
         }
         
-        // 重置文件选择状态
         function resetFileSelection() {
             selectedFile = null;
             fileInput.value = '';
             uploadArea.classList.remove('has-file');
             uploadText.textContent = '拖拽或点击上传ZIP';
+            document.getElementById('xlsxFileItem').style.display = 'none';
+            document.getElementById('xlsxFileName').value = '';
         }
         
         function appendResultRows(results) {
@@ -747,6 +1448,347 @@
                 resultBody.appendChild(tr);
                 tr.scrollIntoView({ behavior: 'smooth', block: 'end' });
             });
+        }
+
+        function renderResultList(results) {
+            resultBody.innerHTML = '';
+            lastResultIndex = results.length;
+            results.forEach(result => {
+                const tr = document.createElement('tr');
+                fieldOrder.forEach(field => {
+                    const td = document.createElement('td');
+                    const value = result[field];
+                    if (value === null || value === undefined || value === '') {
+                        td.textContent = '-';
+                        td.className = 'empty-cell';
+                    } else {
+                        td.textContent = value;
+                    }
+                    tr.appendChild(td);
+                });
+                resultBody.appendChild(tr);
+            });
+            resultContainer.style.display = 'flex';
+            resultCount.textContent = `(${results.length}/${results.length})`;
+        }
+
+        // 历史记录
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/history');
+                if (!res.ok) throw new Error('获取历史记录失败');
+                const data = await res.json();
+                renderHistory(data.items || []);
+            } catch (err) {
+                // 静默处理
+            }
+        }
+
+        function renderHistory(items) {
+            historyBody.innerHTML = '';
+            historyCount.textContent = items.length ? `(${items.length})` : '';
+
+            if (!items.length) {
+                historyBody.innerHTML = '<tr><td colspan="7" class="empty-cell">暂无历史记录</td></tr>';
+                return;
+            }
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'history-row';
+                
+                const statusText = STATUS_LABELS[item.status] || item.status || '-';
+                const resultText = item.result_count != null && item.total_rows != null
+                    ? `${item.result_count}/${item.total_rows}`
+                    : (item.result_count != null ? `${item.result_count}` : '-');
+
+                // 如果有任务正在处理，或者当前任务正在处理中，禁用点击
+                const isItemProcessing = CLICK_DISABLED_STATUS.includes(item.status);
+                const clickDisabled = isItemProcessing || isProcessing;
+                if (isItemProcessing) tr.classList.add('disabled');
+                
+                // 任务ID
+                const tdId = document.createElement('td');
+                const linkBtn = document.createElement('span');
+                linkBtn.className = `link-btn ${clickDisabled ? 'disabled' : ''}`;
+                linkBtn.textContent = item.task_id || '-';
+                if (!clickDisabled && item.task_id) {
+                    linkBtn.onclick = () => loadHistoryResult(item.task_id);
+                }
+                tdId.appendChild(linkBtn);
+                tr.appendChild(tdId);
+                
+                // 状态标签
+                const tdStatus = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = `status-badge ${item.status || ''}`;
+                badge.textContent = statusText;
+                tdStatus.appendChild(badge);
+                tr.appendChild(tdStatus);
+                
+                // 进度
+                const tdProgress = document.createElement('td');
+                tdProgress.textContent = resultText;
+                tr.appendChild(tdProgress);
+                
+                // 创建时间
+                const tdCreated = document.createElement('td');
+                tdCreated.textContent = item.created_at ? formatTime(item.created_at) : '-';
+                tr.appendChild(tdCreated);
+                
+                // 完成时间
+                const tdFinished = document.createElement('td');
+                tdFinished.textContent = item.finished_at ? formatTime(item.finished_at) : '-';
+                tr.appendChild(tdFinished);
+                
+                // 操作列
+                const tdActions = document.createElement('td');
+                const actionBtns = document.createElement('div');
+                actionBtns.className = 'action-btns';
+                
+                // 继续处理按钮 - 仅对 cancelled 或 error 状态且有未处理行的任务显示
+                if ((item.status === 'cancelled' || item.status === 'error') && 
+                    item.total_rows > 0 && item.result_count < item.total_rows) {
+                    const resumeBtn = document.createElement('button');
+                    resumeBtn.className = 'btn btn-primary btn-sm';
+                    resumeBtn.textContent = '▶ 继续';
+                    // 如果有任务正在处理中，禁用继续按钮
+                    if (isProcessing) {
+                        resumeBtn.disabled = true;
+                        resumeBtn.title = '请等待当前任务完成';
+                    } else {
+                        resumeBtn.onclick = () => resumeTaskFromHistory(item.task_id);
+                    }
+                    actionBtns.appendChild(resumeBtn);
+                }
+                
+                // 下载按钮
+                if (item.has_result) {
+                    const link = document.createElement('a');
+                    link.href = `/api/history/${item.task_id}/result`;
+                    link.className = 'btn btn-success btn-sm';
+                    link.textContent = '⬇ 下载';
+                    actionBtns.appendChild(link);
+                }
+                
+                // 删除按钮 - 处理中的任务不能删除
+                if (item.status !== 'processing') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-danger btn-sm';
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.onclick = () => deleteTaskFromHistory(item.task_id);
+                    actionBtns.appendChild(deleteBtn);
+                }
+                
+                if (actionBtns.children.length === 0) {
+                    tdActions.textContent = '-';
+                    tdActions.className = 'empty-cell';
+                } else {
+                    tdActions.appendChild(actionBtns);
+                }
+                tr.appendChild(tdActions);
+
+                historyBody.appendChild(tr);
+            });
+        }
+        
+        function formatTime(isoString) {
+            if (!isoString) return '-';
+            const d = new Date(isoString);
+            const pad = n => n.toString().padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        refreshHistoryBtn.addEventListener('click', () => {
+            loadHistory();
+            showToast('已刷新', 'info', 1500);
+        });
+
+        // 侧边栏控制
+        function showSidebar() {
+            sidebarOverlay.classList.add('show');
+            historySidebar.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideSidebar() {
+            sidebarOverlay.classList.remove('show');
+            historySidebar.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        historyToggleBtn.addEventListener('click', () => {
+            showSidebar();
+            loadHistory();
+        });
+
+        sidebarClose.addEventListener('click', hideSidebar);
+        sidebarOverlay.addEventListener('click', hideSidebar);
+
+        // ESC键关闭侧边栏
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && historySidebar.classList.contains('show')) {
+                hideSidebar();
+            }
+        });
+
+        async function loadHistoryResult(taskId) {
+            try {
+                // 清除当前任务状态（查看历史不是正在处理的任务）
+                currentTaskId = null;
+                clearTaskState();
+                
+                statusMessage.textContent = `加载历史结果...`;
+                progressContainer.style.display = 'block';
+                
+                // 获取任务详情
+                const detailRes = await fetch(`/api/history/${taskId}`);
+                let taskDetail = null;
+                if (detailRes.ok) {
+                    taskDetail = await detailRes.json();
+                }
+                
+                const res = await fetch(`/api/history/${taskId}/result_json`);
+                if (!res.ok) throw new Error('获取历史结果失败');
+                const data = await res.json();
+                renderResultList(data.items || []);
+                downloadBtn.href = `/api/history/${taskId}/result`;
+                downloadBtn.textContent = '⬇ 下载完整CSV';
+                downloadBtn.style.display = 'inline-flex';
+                downloadPartialBtn.style.display = 'none';
+                cancelTaskBtn.style.display = 'none';
+                
+                // 根据任务状态显示进度和继续按钮
+                historyResumeBtn.style.display = 'none';
+                if (taskDetail && taskDetail.total_rows > 0) {
+                    const resultCount = taskDetail.result_count || (data.items ? data.items.length : 0);
+                    const totalRows = taskDetail.total_rows;
+                    const progress = Math.round((resultCount / totalRows) * 100);
+                    progressFill.style.width = `${progress}%`;
+                    progressPercent.textContent = `${progress}%`;
+                    
+                    const statusText = STATUS_LABELS[taskDetail.status] || taskDetail.status || '';
+                    statusMessage.textContent = `历史记录: ${taskId} (${statusText} ${resultCount}/${totalRows})`;
+                    
+                    // 未完成的任务显示继续按钮（非处理中、非已完成）
+                    if ((taskDetail.status === 'cancelled' || taskDetail.status === 'error') && 
+                        resultCount < totalRows && !isProcessing) {
+                        historyResumeBtn.style.display = 'inline-flex';
+                        historyResumeBtn.disabled = false;
+                        historyResumeBtn.textContent = '▶ 继续处理';
+                        historyResumeBtn.onclick = () => resumeTaskFromHistory(taskId);
+                    }
+                } else {
+                    progressFill.style.width = '100%';
+                    progressPercent.textContent = '100%';
+                    statusMessage.textContent = `历史记录: ${taskId}`;
+                }
+                statusMessage.className = 'status-text';
+            } catch (err) {
+                statusMessage.textContent = `加载失败: ${err.message}`;
+                statusMessage.className = 'status-text error';
+            }
+        }
+
+        async function resumeTaskFromHistory(taskId) {
+            currentTaskId = taskId;
+            progressContainer.style.display = 'block';
+            statusMessage.textContent = '正在恢复任务...';
+            
+            try {
+                const response = await fetch(`/api/resume/${taskId}`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    let errorMessage = '恢复失败';
+                    if (response.status === 404) {
+                        errorMessage = '任务不存在或无法恢复';
+                    } else if (response.status === 400) {
+                        try {
+                            const errData = await response.json();
+                            errorMessage = errData.detail || '恢复失败';
+                        } catch (e) {
+                            errorMessage = '任务正在处理中';
+                        }
+                    } else {
+                        try {
+                            const errData = await response.json();
+                            errorMessage = errData.detail || '恢复失败';
+                        } catch (e) {
+                            errorMessage = `恢复失败 (状态码: ${response.status})`;
+                        }
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const data = await response.json();
+                statusMessage.textContent = data.message || '正在恢复处理...';
+                statusMessage.className = 'status-text';
+                resultContainer.style.display = 'flex';
+                
+                // 加载已有的结果
+                try {
+                    const resultRes = await fetch(`/api/history/${taskId}/result_json`);
+                    if (resultRes.ok) {
+                        const resultData = await resultRes.json();
+                        renderResultList(resultData.items || []);
+                    }
+                } catch (e) {
+                    // 忽略
+                }
+                
+                historyResumeBtn.style.display = 'none';
+                cancelTaskBtn.style.display = 'inline-flex';
+                cancelTaskBtn.disabled = false;
+                cancelTaskBtn.textContent = '⏹ 停止任务';
+                
+                saveTaskState();
+                startPolling();
+                loadHistory();
+                showToast('任务已恢复', 'success');
+            } catch (error) {
+                historyResumeBtn.style.display = 'none';
+                statusMessage.textContent = error.message;
+                statusMessage.className = 'status-text error';
+                await showMessage('error', error.message);
+                loadHistory();
+            }
+        }
+
+        async function deleteTaskFromHistory(taskId) {
+            const confirmed = await showConfirm(
+                `确定要删除任务 ${taskId} 的数据吗？`,
+                '注意：此操作将删除该任务的所有数据文件。',
+                '删除确认'
+            );
+            
+            if (!confirmed) return;
+            
+            try {
+                const response = await fetch(`/api/history/${taskId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || '删除失败');
+                }
+                
+                // 如果删除的是当前正在查看的任务，清除显示
+                if (currentTaskId === taskId) {
+                    resultBody.innerHTML = '';
+                    resultContainer.style.display = 'none';
+                    progressContainer.style.display = 'none';
+                    currentTaskId = null;
+                    clearTaskState();
+                }
+                
+                loadHistory();
+                showToast('已删除', 'success');
+            } catch (error) {
+                await showMessage('error', `删除失败: ${error.message}`);
+            }
         }
     </script>
 </body>
